@@ -8,6 +8,7 @@ import clothes3 from "../../assets/images/black_jersey.png";
 import clothes4 from "../../assets/images/supreme_hoodie.png";
 import clothes5 from "../../assets/images/nike_air.png";
 
+
 // 5개 버튼 감싸는 박스
 const ButtonContainer = styled.div`
     margin-top: 40px;
@@ -174,9 +175,10 @@ const ProductComponents = styled.div`
     display: flex;
     flex-direction: column;
     width: 100%;
+    cursor: pointer;
 `
 
-const ItemImage = styled.img`
+export const ItemImage = styled.img`
     width: 220px;
     aspect-ratio: 3 / 4;
     object-fit: cover;
@@ -199,6 +201,14 @@ function useToggle(initialValue = false) {
 
     return [activeId, toggle];
 }
+
+export const productList = [
+    { id: 1, img: clothes1, productname: "아이앱 스튜디오 25 후드 라이트 그레이", productprice: "145,000원", reviewcount: "리뷰 1,561" }, 
+    { id: 2, img: clothes2, productname: "아이앱 스튜디오 25 후드 라이트 블루", productprice: "145,000원", reviewcount: "리뷰 1,732" }, 
+    { id: 3, img: clothes3, productname: "아디다스 블랙 져지 2016", productprice: "255,000원", reviewcount: "리뷰 781" }, 
+    { id: 4, img: clothes4, productname: "슈프림 후드집업 30 딥블루", productprice: "458,000원", reviewcount: "리뷰 2,567" }, 
+    { id: 5, img: clothes5, productname: "나이키 에어 그레이 하운드 25", productprice: "235,000원", reviewcount: "리뷰 231" }, 
+]
 
 export default function Main(){
     const {pathname} = useLocation(); // 현재 페이지 경로 불러오기
@@ -262,13 +272,7 @@ export default function Main(){
         { id: "review", name: "리뷰 많은순"},
     ]
 
-    const productList = [
-        { id: 1, img: clothes1, productname: "아이앱 스튜디오 25 후드 라이트 그레이", productprice: "145,000원", reviewcount: "리뷰 1,561" }, 
-        { id: 2, img: clothes2, productname: "아이앱 스튜디오 25 후드 라이트 블루", productprice: "145,000원", reviewcount: "리뷰 1,732" }, 
-        { id: 3, img: clothes3, productname: "아디다스 블랙 져지 2016", productprice: "255,000원", reviewcount: "리뷰 781" }, 
-        { id: 4, img: clothes4, productname: "슈프림 후드집업 30 딥블루", productprice: "458,000원", reviewcount: "리뷰 2,567" }, 
-        { id: 5, img: clothes5, productname: "나이키 에어 그레이 하운드 25", productprice: "235,000원", reviewcount: "리뷰 231" }
-    ]
+
 
     return (
         <div>
@@ -448,7 +452,7 @@ export default function Main(){
 
             <ProductItems>
                 {productList.map((item) => 
-                    <ProductComponents key = {item.id}>
+                    <ProductComponents key = {item.id} onClick={()=>navigate(`/item/${item.id}`)}>
                         <ItemImage src = {item.img} alt = {item.productname} />
                         <ItemText1>{item.productname}</ItemText1>
                         <ItemText2>{item.productprice}</ItemText2>
@@ -459,7 +463,7 @@ export default function Main(){
 
             <ProductItems>
                 {productList.map((item) => 
-                    <ProductComponents key = {item.id}>
+                    <ProductComponents key = {item.id} onClick={()=>navigate(`/item/${item.id}`)}>
                         <ItemImage src = {item.img} alt = {item.productname} />
                         <ItemText1>{item.productname}</ItemText1>
                         <ItemText2>{item.productprice}</ItemText2>

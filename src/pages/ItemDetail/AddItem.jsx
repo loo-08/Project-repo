@@ -3,6 +3,9 @@ import styled from "styled-components";
 import uploadIcon from "../../assets/images/upload_icon.png";
 import Button from "../../components/common/button/Button";
 
+import { addItem } from "../../api/shop";
+import { useNavigate } from "react-router-dom";
+
 const MainBox = styled.div`
     display: flex;
     justify-content: center;
@@ -77,7 +80,7 @@ const Text2 = styled.div`
 //padding-top: 8px;
 //padding-bottom: 8px;
 
-const WordSizeBox = styled.div`
+const WordSizeBox = styled.input`
     display: flex;
     align-items: center;
 
@@ -195,6 +198,12 @@ export default function AddItem() {
     const [selectedSex, setSelectedSex] = useState("");
     const [selectedColor, setSelectedColor] = useState("");
 
+    const [name, setName] = useState("");
+    const [rating, setRating] = useState("");
+    const [reviews, setReviews] = useState("");
+    const [price, setPrice] = useState("");
+    const [size, setSize] = useState("");
+
 
     const onUploadClick = () => {
         fileInputRef.current.click();
@@ -208,6 +217,34 @@ export default function AddItem() {
                 setImagePreview(reader.result);
             };
             reader.readAsDataURL(file);
+        }
+    };
+
+    const navigate = useNavigate();
+    const handleSubmit = async () => {
+        // 서버가 요구하는 데이터 규격에 맞춰 객체 생성 [cite: 364-374, 693-696]
+        const productData = {
+            image: imagePreview || "기본_이미지_URL", // 업로드한 이미지 주소
+            name: name,
+            rating: Number(rating), // 숫자로 변환 필수! [cite: 366]
+            reviews: Number(reviews),
+            price: Number(price),
+            size: size,
+            type: selectedType.name === "의류" ? "clothes" : "shoes", // 영문 변환
+            gender: selectedSex.name === "남성" ? "male" : "female",
+            color: selectedColor.name
+        };
+
+        try {
+            // "의류"면 clothes, "신발"이면 shoes 경로로 POST 요청 [cite: 258, 356]
+            const type = selectedType.name === "의류" ? "clothes" : "shoes";
+            await addItem(type, productData); 
+            
+            alert("상품 등록이 완료되었습니다!");
+            navigate("/"); // 등록 후 메인으로 이동
+        } catch (error) {
+            console.error("등록 에러:", error);
+            alert("등록에 실패했습니다.");
         }
     };
 
@@ -228,15 +265,16 @@ export default function AddItem() {
             <ProductInfoBox>
                 <Text1>상품 정보 등록</Text1>
                 <Text2>상품명</Text2>
-                <WordSizeBox></WordSizeBox>
+                <WordSizeBox value={name} onChange={(e) => setName(e.target.value)} />
                 <Text2>평점</Text2>
-                <WordSizeBox></WordSizeBox>
+                <WordSizeBox value={rating} onChange={(e) => setName(e.target.value)} />
                 <Text2>리뷰수</Text2>
-                <WordSizeBox></WordSizeBox>
+                <WordSizeBox value={reviews} onChange={(e) => setName(e.target.value)} />
                 <Text2>가격</Text2>
-                <WordSizeBox></WordSizeBox>
+                <WordSizeBox value={price} onChange={(e) => setName(e.target.value)} />
                 <Text2>사이즈</Text2>
-                <WordSizeBox></WordSizeBox>
+                <WordSizeBox value={size} onChange={(e) => setName(e.target.value)} />
+
                 <Text2>종류</Text2>
                 <TypeBox>
                     {types.map(typ => (
@@ -249,6 +287,7 @@ export default function AddItem() {
                         </OptionButton>
                     ))}
                 </TypeBox>
+
                 <Text2>성별</Text2>
                 <TypeBox>
                     {sex.map(sx => (
@@ -261,6 +300,7 @@ export default function AddItem() {
                         </OptionButton>
                     ))}
                 </TypeBox>
+
                 <Text2>색상</Text2>
                 <GridContainer>
                     {color.map(clr => (
@@ -273,10 +313,11 @@ export default function AddItem() {
                         </OptionButton2>
                     ))}
                 </GridContainer>
+
                 <CompleteButton>
-                    <CompleteButton2 buttonName="상품 등록 완료" />
+                    <CompleteButton2 buttonName="상품 등록 완료" onClick={handleSubmit} /> {/* 클릭 시 API 호출! */}
                 </CompleteButton>
-                
+            
             </ProductInfoBox>
 
             <input

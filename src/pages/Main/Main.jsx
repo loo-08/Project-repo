@@ -8,6 +8,11 @@ import clothes3 from "../../assets/images/black_jersey.png";
 import clothes4 from "../../assets/images/supreme_hoodie.png";
 import clothes5 from "../../assets/images/nike_air.png";
 
+// 5.11에 추가
+import { useEffect } from "react";
+import { getItems } from "../../api/shop";
+
+import { addItem } from "../../api/shop";
 
 // 5개 버튼 감싸는 박스
 const ButtonContainer = styled.div`
@@ -216,7 +221,23 @@ export default function Main(){
 
     const [activeId, modalOpener] = useToggle(null);
 
-    const [selectedOption, setSelectedOption] = useState("defalut");
+    const [selectedOption, setSelectedOption] = useState("default");
+
+    // 5.11 작성
+    const [items, setItems] = useState([]);
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const res = await getItems("clothes");
+                if (!cancelled) setItems(Array.isArray(res) ? res : []);
+            } catch {
+                if (!cancelled) setItems([]);
+            }
+        })();
+        return () => { cancelled = true; };
+    }, []);
 
     const button = [ 
         { id: "gender", name: "성별" }, 
@@ -271,8 +292,6 @@ export default function Main(){
         { id: "rating", name: "평점 높은순"}, 
         { id: "review", name: "리뷰 많은순"},
     ]
-
-
 
     return (
         <div>
@@ -451,26 +470,39 @@ export default function Main(){
             </ButtonArray>
 
             <ProductItems>
-                {productList.map((item) => 
+                {items.map((item) => 
                     <ProductComponents key = {item.id} onClick={()=>navigate(`/item/${item.id}`)}>
-                        <ItemImage src = {item.img} alt = {item.productname} />
-                        <ItemText1>{item.productname}</ItemText1>
-                        <ItemText2>{item.productprice}</ItemText2>
-                        <ItemText3>{item.reviewcount}</ItemText3>
+                        {/* API에서 오는 데이터 필드명에 맞춰 수정 */}
+                        <ItemImage src = {item.image} alt = {item.name} />
+                        <ItemText1>{item.name}</ItemText1>
+
+                        {/* 숫자로 들어오는 가격을 '원' 단위 포맷팅으로 변경 */}
+                        <ItemText2>
+                            {typeof item.price === 'number' ? `${item.price.toLocaleString()}원` : item.price}
+                        </ItemText2>
+
+                        <ItemText3>리뷰 {item.reviews}</ItemText3>
                     </ProductComponents>
                 )}
             </ProductItems>
 
             <ProductItems>
-                {productList.map((item) => 
+                {items.map((item) => 
                     <ProductComponents key = {item.id} onClick={()=>navigate(`/item/${item.id}`)}>
-                        <ItemImage src = {item.img} alt = {item.productname} />
-                        <ItemText1>{item.productname}</ItemText1>
-                        <ItemText2>{item.productprice}</ItemText2>
-                        <ItemText3>{item.reviewcount}</ItemText3>
+                        {/* API에서 오는 데이터 필드명에 맞춰 수정 */}
+                        <ItemImage src = {item.image} alt = {item.name} />
+                        <ItemText1>{item.name}</ItemText1>
+                        
+                        {/* 숫자로 들어오는 가격을 '원' 단위 포맷팅으로 변경 */}
+                        <ItemText2>
+                            {typeof item.price === 'number' ? `${item.price.toLocaleString()}원` : item.price}
+                        </ItemText2>
+
+                        <ItemText3>리뷰 {item.reviews}</ItemText3>
                     </ProductComponents>
                 )}
             </ProductItems>
+
         </div>
     )
 }

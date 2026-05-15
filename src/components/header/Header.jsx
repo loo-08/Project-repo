@@ -5,11 +5,13 @@ import {useLocation, useNavigate} from "react-router-dom";
 import { act, useState } from "react";
 import Button from "../common/button/Button";
 
+import { deleteItem } from "../../api/shop";
 
 // 대문자로 시작! -> 대문자를 컴포넌트로 인식하기 때문
 const LogoImage = styled.img`
     width: 166px;
     height: 141px;
+    cursor: pointer;
 `;
 
 const IconBox = styled.div`
@@ -20,6 +22,7 @@ const IconBox = styled.div`
 const HomeIcon = styled.img`
     width: 61px;
     height: 24px;
+    cursor: pointer;
 `
 
 const HeadContainer = styled.div`
@@ -121,6 +124,23 @@ export default function Header() {
 
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+    const itemId = pathname.split("/")[2];
+
+    const handleDelete = async () => {
+        try {
+            // 현재는 의류(clothes) 기준으로 하는 중이므로 "clothes" 넣음
+            await deleteItem("clothes", itemId); 
+            
+            alert("상품이 삭제되었습니다.");
+            setIsDeleteModalOpen(false); // 모달 닫기
+            navigate("/"); // 삭제 후 메인 목록으로 이동
+            window.location.reload(); // 바뀐 목록 확인을 위해 새로고침
+        } catch (error) {
+            console.error("삭제 실패:", error);
+            alert("상품 삭제 중 에러가 발생했습니다.");
+        }
+    };
+
     return(
         <div>
             <HeadContainer>
@@ -140,7 +160,7 @@ export default function Header() {
                         <NowButton buttonName = {buttonName1}></NowButton>
                     )}
                     <IconBox>
-                        <HomeIcon src={homeUrl}/>
+                        <HomeIcon src={homeUrl} onClick = {() => navigate("/")} />
                     </IconBox>
                 </div>
             </HeadContainer>
@@ -153,7 +173,7 @@ export default function Header() {
                         </ModalText>
                         <ModalButtonBox>
                             <YesButton 
-                                onClick={() => setIsDeleteModalOpen(false)}
+                                onClick={() => {handleDelete}}
                                 buttonName="확인"
                             />
                             <NoButton 

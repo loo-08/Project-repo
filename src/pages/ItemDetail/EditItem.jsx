@@ -5,6 +5,9 @@ import Button from "../../components/common/button/Button";
 import { useParams } from "react-router-dom";
 import { productList } from "../Main/Main";
 
+// API 함수 임포트
+import { getItemDetail, updateItem } from "../../api/shop";
+
 const MainBox = styled.div`
     display: flex;
     justify-content: center;
@@ -192,11 +195,8 @@ const CompleteButton2 = styled(Button)`
 
 export default function AddItem() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const item = productList.find(p => p.id === Number(id));
-
-    console.log("URL에서 가져온 ID:", id);
-    console.log("찾은 상품 데이터:", item);
-    console.log("전체 상품 목록:", productList);
 
     const [imagePreview, setImagePreview] = useState(item ? item.img : null);
     const fileInputRef = useRef(null);
@@ -204,7 +204,63 @@ export default function AddItem() {
     const [selectedSex, setSelectedSex] = useState("");
     const [selectedColor, setSelectedColor] = useState("");
 
-    
+    const [name, setName] = useState("");
+    const [rating, setRating] = useState("");
+    const [reviews, setReviews] = useState("");
+    const [price, setPrice] = useState("");
+    const [size, setSize] = useState("");
+
+    // 기존 데이터 불러오기 (GET 상세 조회)
+    useEffect(() => {
+        const loadItem = async () => {
+            try {
+                // 현재 URL 파라미터가 id만 있으므로 기본 type을 "clothes"로 설정
+                const data = await getItemDetail("clothes", id); 
+                
+                // 받아온 데이터로 state 업데이트
+                setImagePreview(data.image);
+                setName(data.name);
+                setRating(data.rating);
+                setReviews(data.reviews);
+                setPrice(data.price);
+                setSize(data.size);
+                
+                // 종류, 성별, 색상 객체 매칭
+                setSelectedType(types.find(t => (t.name === "의류" ? "clothes" : "shoes") === data.type) || types[0]);
+                setSelectedSex(sex.find(s => (s.name === "남성" ? "male" : "female") === data.gender) || sex[0]);
+                setSelectedColor(color.find(c => c.name === data.color) || color[0]);
+            } catch (error) {
+                console.error("데이터 로드 실패:", error);
+            }
+        };
+        loadItem();
+    }, [id]);
+
+    // 상품 수정 완료 함수 (PUT)
+    const handleUpdate = async () => {
+        const updatedData = {
+            image: imagePreview,
+            name: name,
+            rating: Number(rating),
+            reviews: Number(reviews),
+            price: Number(price),
+            size: size,
+            soldout: false,
+            type: selectedType.name === "의류" ? "clothes" : "shoes",
+            gender: selectedSex.name === "남성" ? "male" : "female",
+            color: selectedColor.name
+        };
+
+        try {
+            const typeKey = selectedType.name === "의류" ? "clothes" : "shoes";
+            await updateItem(typeKey, id, updatedData); // 서버에 PUT 요청
+            alert("상품 정보가 수정되었습니다.");
+            navigate(`/item/${id}`); // 수정 후 상세 페이지로 이동
+        } catch (error) {
+            console.error("수정 실패:", error);
+            alert("수정에 실패했습니다.");
+        }
+    };
 
     const onUploadClick = () => {
         fileInputRef.current.click();
@@ -238,15 +294,15 @@ export default function AddItem() {
             <ProductInfoBox>
                 <Text1>상품 정보 수정</Text1>
                 <Text2>상품명</Text2>
-                <WordSizeBox></WordSizeBox>
+                <WordSizeBox value={name} onChange={(e) => setName(e.target.value)} />
                 <Text2>평점</Text2>
-                <WordSizeBox></WordSizeBox>
+                <WordSizeBox value={rating} onChange={(e) => setName(e.target.value)} />
                 <Text2>리뷰수</Text2>
-                <WordSizeBox></WordSizeBox>
+                <WordSizeBox value={reviews} onChange={(e) => setName(e.target.value)} />
                 <Text2>가격</Text2>
-                <WordSizeBox></WordSizeBox>
+                <WordSizeBox value={price} onChange={(e) => setName(e.target.value)} />
                 <Text2>사이즈</Text2>
-                <WordSizeBox></WordSizeBox>
+                <WordSizeBox value={size} onChange={(e) => setName(e.target.value)} />
                 <Text2>종류</Text2>
                 <TypeBox>
                     {types.map(typ => (
@@ -283,8 +339,9 @@ export default function AddItem() {
                         </OptionButton2>
                     ))}
                 </GridContainer>
+
                 <CompleteButton>
-                    <CompleteButton2 buttonName="상품 수정 완료" />
+                    <CompleteButton2 buttonName="상품 수정 완료" onClick={handleUpdate} />
                 </CompleteButton>
                 
             </ProductInfoBox>

@@ -124,8 +124,6 @@ export default function Header() {
 
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-    const itemId = pathname.split("/")[2];
-
     const handleDelete = async () => {
         try {
             // 현재는 의류(clothes) 기준으로 하는 중이므로 "clothes" 넣음
@@ -134,7 +132,6 @@ export default function Header() {
             alert("상품이 삭제되었습니다.");
             setIsDeleteModalOpen(false); // 모달 닫기
             navigate("/"); // 삭제 후 메인 목록으로 이동
-            window.location.reload(); // 바뀐 목록 확인을 위해 새로고침
         } catch (error) {
             console.error("삭제 실패:", error);
             alert("상품 삭제 중 에러가 발생했습니다.");
@@ -173,7 +170,7 @@ export default function Header() {
                         </ModalText>
                         <ModalButtonBox>
                             <YesButton 
-                                onClick={() => {handleDelete}}
+                                onClick={() => handleDelete()}
                                 buttonName="확인"
                             />
                             <NoButton 

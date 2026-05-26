@@ -2,7 +2,6 @@ import { useState, useRef } from "react";
 import styled from "styled-components";
 import uploadIcon from "../../assets/images/upload_icon.png";
 import Button from "../../components/common/button/Button";
-
 import { addItem } from "../../api/shop";
 import { useNavigate } from "react-router-dom";
 
@@ -188,9 +187,6 @@ const CompleteButton2 = styled(Button)`
     cursor: pointer;
 `
 
-
-
-
 export default function AddItem() {
     const [imagePreview, setImagePreview] = useState(null);
     const fileInputRef = useRef(null);
@@ -222,11 +218,11 @@ export default function AddItem() {
 
     const navigate = useNavigate();
     const handleSubmit = async () => {
-        // 서버가 요구하는 데이터 규격에 맞춰 객체 생성 [cite: 364-374, 693-696]
+        // 서버가 요구하는 데이터 규격에 맞춰 객체 생성
         const productData = {
             image: imagePreview || "기본_이미지_URL", // 업로드한 이미지 주소
             name: name,
-            rating: Number(rating), // 숫자로 변환 필수! [cite: 366]
+            rating: Number(rating), // 숫자로 변환 필수!
             reviews: Number(reviews),
             price: Number(price),
             size: size,
@@ -236,7 +232,7 @@ export default function AddItem() {
         };
 
         try {
-            // "의류"면 clothes, "신발"이면 shoes 경로로 POST 요청 [cite: 258, 356]
+            // "의류"면 clothes, "신발"이면 shoes 경로로 POST 요청
             const type = selectedType.name === "의류" ? "clothes" : "shoes";
             await addItem(type, productData); 
             
